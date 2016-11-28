@@ -1,36 +1,23 @@
-FROM phusion/baseimage:latest
-
-MAINTAINER Mani Sarkar (from @adoptopenjdk)
+FROM debian:jessie-backports 
 
 RUN \
   apt-get update && \
   apt-get install -y \
     libxt-dev zip pkg-config libX11-dev libxext-dev \
-    libxrender-dev libxtst-dev libasound2-dev libcups2-dev libfreetype6-dev && \
+    libxrender-dev libxtst-dev libasound2-dev libcups2-dev libfreetype6-dev \
+    mercurial ca-certificates-java build-essential wget openjdk-8-jdk && \ 
   rm -rf /var/lib/apt/lists/*
 
-RUN \
-  apt-get update
-
-RUN \
-  apt-get install -y mercurial ca-certificates-java build-essential
-  
 RUN \
   cd /tmp && \
   hg clone http://hg.openjdk.java.net/jdk9/jdk9 openjdk9 && \ 
   cd openjdk9 && \
+  hg up jdk-9+146 && \
   sh ./get_source.sh 
 
 RUN \
-  apt-get install -y wget && \
-  wget --no-check-certificate --header "Cookie: oraclelicense=accept-securebackup-cookie" http://download.oracle.com/otn-pub/java/jdk/8u45-b14/jdk-8u45-linux-x64.tar.gz
-
-RUN \
-  tar zxvf jdk-8u45-linux-x64.tar.gz -C /opt 
-
-RUN \
   cd /tmp/openjdk9 && \
-  bash ./configure --with-cacerts-file=/etc/ssl/certs/java/cacerts --with-boot-jdk=/opt/jdk1.8.0_45
+  bash ./configure --with-cacerts-file=/etc/ssl/certs/java/cacerts --with-boot-jdk=/usr/lib/jvm/java-8-openjdk-amd64/
 
 RUN \  
   cd /tmp/openjdk9 && \
